@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Control Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header style="background-color: #212529;">
+    <h1>⚙️ Admin Dashboard</h1>
+    <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">🏠 Main Shop သို့</a>
+  </header>
+
+  <section class="admin-panel">
+    <h2>🔒 Admin Password မဖြစ်မနေ ထည့်ပါ</h2>
+    <div class="form-group">
+      <input type="password" id="passkey" placeholder="🔑 Admin Password (Default: admin123)">
+    </div>
+    
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+
+    <div class="form-group">
+      <h3>➕ Product အသစ်ထည့်ရန်</h3>
+      <input type="text" id="pName" placeholder="Product အမည်">
+      <input type="text" id="pPrice" placeholder="စျေးနှုန်း (ဥပမာ - 15,000 MMK)">
+      <input type="text" id="pImage" placeholder="ဓာတ်ပုံ Link (URL / ImgBB)">
+      <textarea id="pDesc" placeholder="အသေးစိတ် ဖော်ပြချက်"></textarea>
+      <button class="btn btn-primary" onclick="addProduct()">Product တင်မည်</button>
+    </div>
+  </section>
+
+  <main>
+    <h2>လက်ရှိတင်ထားသော ပစ္စည်းများ (ဖျက်ရန်)</h2>
+    <div id="adminProductGrid" class="product-grid"></div>
+  </main>
+
+  <script>
+    const MY_PHONE_NUMBER = "09123456789";
+
+    function loadAdminProducts() {
+      fetch('/api/products')
+        .then(res => res.json())
+        .then(products => {
+          const grid = document.getElementById('adminProductGrid');
+          grid.innerHTML = '';
+
+          if (products.length === 0) {
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">Product များ မရှိသေးပါ။</p>';
+            return;
+          }
+
+          products.forEach(p => {
+            grid.innerHTML += `
+              <div class="card">
+                <img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                <div class="card-body">
+                  <div class="card-title">${p.name}</div>
+                  <div class="card-price">${p.price}</div>
+                  <div class="card-desc">${p.description || ''}</div>
+                  <div class="admin-actions">
+                    <button class="btn btn-danger" onclick="deleteProduct(${p.id})">🗑️ ဒီ Product ကို ဖျက်မည်</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        });
+    }
+
+    function addProduct() {
+      const passkey = document.getElementById('passkey').value;
+      const name = document.getElementById('pName').value;
+      const price = document.getElementById('pPrice').value;
+      let image = document.getElementById('pImage').value.trim();
+      const description = document.getElementById('pDesc').value;
+
+      if (!passkey) return alert("Admin Password ထည့်ပါ။");
+
+      if (image.includes('<img src=')) {
+        const match = image.match(/src="([^"]+)"/);
+        if (match && match[1]) {
+          image = match[1];
+        }
+      }
+
+      fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passkey, name, price, image, description })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) alert(data.error);
+        else {
+          alert(data.message);
+          loadAdminProducts();
+          document.getElementById('pName').value = '';
+          document.getElementById('pPrice').value = '';
+          document.getElementById('pImage').value = '';
+          document.getElementById('pDesc').value = '';
+        }
+      });
+    }
+
+    function deleteProduct(id) {
+      const passkey = document.getElementById('passkey').value;
+      if (!passkey) return alert("Admin Password ထည့်ပါ။");
+
+      if (confirm("ဒီ Product ကို အမှန်တကယ် ဖျက်မှာလား?")) {
+        fetch(`/api/products/${id}`, {
+          method: 'DELETE',
+          headers: { 'x-passkey': passkey }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) alert(data.error);
+          else {
+            alert(data.message);
+            loadAdminProducts();
+          }
+        });
+      }
+    }
+
+    loadAdminProducts();
+  </script>
+</body>
+</html>
