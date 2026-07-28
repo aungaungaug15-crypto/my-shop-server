@@ -5,10 +5,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = "admin123";
-const DATA_FILE = path.join(__dirname, 'products.json');
+const DATA_FILE = path.join('/tmp', 'products.json');
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 function getProducts() {
   if (!fs.existsSync(DATA_FILE)) {
