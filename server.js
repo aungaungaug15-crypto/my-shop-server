@@ -10,14 +10,14 @@ const DATA_FILE = path.join('/tmp', 'products.json');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-// admin- လို့စတဲ့ Domain ဆိုရင် Admin Page ကိုပြပေးရန်
+// Main Shop Page
 app.get('/', (req, res) => {
-  const host = req.headers.host || '';
-  if (host.startsWith('admin-') || host.startsWith('aung-')) {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-  } else {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Admin Panel Page (လုံခြုံစိတ်ချရသော Path အသစ်)
+app.get('/my-secret-admin-99', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 function getProducts() {
