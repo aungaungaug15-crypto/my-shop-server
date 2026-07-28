@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temp OTP Service - Verify Account</title>
+  <title>Temp OTP Service - Country Specific Numbers</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 420px; width: 100%; }
     h2 { color: #1a73e8; margin-bottom: 8px; }
     p { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
     .form-group { text-align: left; margin-bottom: 15px; }
     label { display: block; font-size: 13px; font-weight: 600; color: #3c4043; margin-bottom: 5px; }
-    input { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 6px; font-size: 14px; outline: none; }
-    input:focus { border-color: #1a73e8; }
-    .btn { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+    input, select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 6px; font-size: 14px; outline: none; background: white; }
+    input:focus, select:focus { border-color: #1a73e8; }
+    .btn { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
     .btn:hover { background: #1557b0; }
     .hidden { display: none; }
-    .number-display { font-size: 22px; font-weight: bold; color: #202124; background: #e8f0fe; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px dashed #1a73e8; }
+    .number-display { font-size: 22px; font-weight: bold; color: #202124; background: #e8f0fe; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px dashed #1a73e8; word-break: break-all; }
     .otp-display { font-size: 16px; font-weight: 500; color: #d93025; background: #fce8e6; padding: 10px; border-radius: 6px; }
     .msg { margin-top: 10px; font-size: 13px; color: red; }
   </style>
@@ -58,14 +58,22 @@
     <div class="msg" id="msg2"></div>
   </div>
 
-  <!-- Step 3: Main Dashboard -->
+  <!-- Step 3: Main Dashboard with Country Specific Logic -->
   <div class="card hidden" id="step3">
-    <h2>📱 Dashboard</h2>
-    <p id="userEmail"></p>
+    <h2>📱 Temp OTP Dashboard</h2>
+    <p id="userEmail" style="margin-bottom: 15px; font-weight: 500; color: #1a73e8;"></p>
     
-    <button class="btn" onclick="getTempNumber()">Get Phone Number</button>
+    <div class="form-group">
+      <label>ဝယ်ယူလိုသော နိုင်ငံ ရွေးချယ်ပါ (Select Country)</label>
+      <select id="countrySelect" onchange="getTempNumber()">
+        <option value="MM">🇲🇲 Myanmar (+95)</option>
+        <option value="US">🇺🇸 United States (+1)</option>
+      </select>
+    </div>
 
-    <div class="number-display" id="phoneBox">+959XXXXXXXX</div>
+    <button class="btn" onclick="getTempNumber()">Get New Number</button>
+
+    <div class="number-display" id="phoneBox">နံပါတ် ထုတ်ယူနေသည်...</div>
     <div class="otp-display" id="otpBox">Waiting for OTP...</div>
   </div>
 
@@ -88,7 +96,6 @@
         document.getElementById('step1').classList.add('hidden');
         document.getElementById('step2').classList.remove('hidden');
         
-        // Demo Mode တွင် တိုက်ရိုက် OTP ကုဒ် ပြပေးမည်
         if(data.demoOtp) {
           alert("Demo Mode OTP Code: " + data.demoOtp);
         }
@@ -113,15 +120,20 @@
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step3').classList.remove('hidden');
         document.getElementById('userEmail').innerText = "Logged in: " + userGmail;
+        // Dashboard ရောက်သည်နှင့် ရွေးထားသော နိုင်ငံအလိုက် ဖုန်းနံပါတ် တိုက်ရိုက်ယူမည်
+        getTempNumber();
       } else {
         document.getElementById('msg2').innerText = data.message;
       }
     }
 
     async function getTempNumber() {
-      document.getElementById('phoneBox').innerText = "Generating...";
-      const res = await fetch('/api/get-number');
+      const country = document.getElementById('countrySelect').value;
+      document.getElementById('phoneBox').innerText = "Generating Number...";
+      
+      const res = await fetch(`/api/get-number?country=${country}`);
       const data = await res.json();
+      
       if(data.success) {
         document.getElementById('phoneBox').innerText = data.phone;
       }
