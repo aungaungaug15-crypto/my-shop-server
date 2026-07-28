@@ -3,31 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temp Phone Number for OTP</title>
+  <title>Temp OTP Service - Sign Up</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 450px; width: 100%; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; }
     h2 { color: #1a73e8; margin-bottom: 8px; }
     p { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
-    .btn { background: #1a73e8; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    .form-group { text-align: left; margin-bottom: 15px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #3c4043; margin-bottom: 5px; }
+    input { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 6px; font-size: 14px; outline: none; }
+    input:focus { border-color: #1a73e8; }
+    .btn { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
     .btn:hover { background: #1557b0; }
-    .number-display { font-size: 24px; font-weight: bold; color: #202124; background: #e8f0fe; padding: 15px; border-radius: 8px; margin: 20px 0; letter-spacing: 1px; border: 1px dashed #1a73e8; }
-    .otp-display { font-size: 18px; font-weight: 500; color: #d93025; background: #fce8e6; padding: 12px; border-radius: 6px; }
+    .main-service { display: none; }
+    .number-display { font-size: 22px; font-weight: bold; color: #202124; background: #e8f0fe; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px dashed #1a73e8; }
+    .otp-display { font-size: 16px; font-weight: 500; color: #d93025; background: #fce8e6; padding: 10px; border-radius: 6px; }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h2>📱 Temp OTP Number</h2>
-    <p>OTP လက်ခံရန် ယာယီ ဖုန်းနံပါတ် ရယူပါ</p>
+  <!-- Sign Up Form (အစောပိုင်း ပြသပေးမည့် အပိုင်း) -->
+  <div class="card" id="authBox">
+    <h2>📱 Temp OTP Service</h2>
+    <p>ဝန်ဆောင်မှု အသုံးပြုရန် Gmail ဖြင့် Sign Up လုပ်ပါ</p>
     
-    <button class="btn" onclick="getTempNumber()">Get New Number</button>
+    <form onsubmit="handleAuth(event)">
+      <div class="form-group">
+        <label>Gmail Address</label>
+        <input type="email" id="email" placeholder="example@gmail.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter password" required>
+      </div>
+      <button type="submit" class="btn">Sign Up / Login</button>
+    </form>
+  </div>
+
+  <!-- Main OTP Service (Sign Up ဝင်ပြီးမှ ပေါ်လာမည့် အပိုင်း) -->
+  <div class="card main-service" id="serviceBox">
+    <h2>📱 Temp OTP Dashboard</h2>
+    <p id="welcomeUser">Welcome!</p>
+    
+    <button class="btn" onclick="getTempNumber()">Get Phone Number</button>
 
     <div class="number-display" id="phoneBox">+959XXXXXXXX</div>
     <div class="otp-display" id="otpBox">Waiting for OTP...</div>
   </div>
 
   <script>
+    function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      
+      // Sign Up အောင်မြင်ပါက Main Page သို့ ကူးပြောင်းပေးခြင်း
+      document.getElementById('authBox').style.display = 'none';
+      document.getElementById('serviceBox').style.display = 'block';
+      document.getElementById('welcomeUser').innerText = `Logged in as: ${email}`;
+    }
+
     async function getTempNumber() {
       document.getElementById('phoneBox').innerText = "Generating...";
       document.getElementById('otpBox').innerText = "Waiting for OTP...";
