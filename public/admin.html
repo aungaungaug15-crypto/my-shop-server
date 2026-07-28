@@ -7,20 +7,16 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <header style="background-color: #212529;">
     <h1>⚙️ Admin Dashboard</h1>
     <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">🏠 Main Shop သို့</a>
   </header>
-
   <section class="admin-panel">
     <h2>🔒 Admin Password မဖြစ်မနေ ထည့်ပါ</h2>
     <div class="form-group">
       <input type="password" id="passkey" placeholder="🔑 Admin Password (Default: admin123)">
     </div>
-    
     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
-
     <div class="form-group">
       <h3>➕ Product အသစ်ထည့်ရန်</h3>
       <input type="text" id="pName" placeholder="Product အမည်">
@@ -30,12 +26,10 @@
       <button class="btn btn-primary" onclick="addProduct()">Product တင်မည်</button>
     </div>
   </section>
-
   <main>
     <h2>လက်ရှိတင်ထားသော ပစ္စည်းများ (ဖျက်ရန်)</h2>
     <div id="adminProductGrid" class="product-grid"></div>
   </main>
-
   <script>
     const MY_PHONE_NUMBER = "09123456789";
 
@@ -45,12 +39,10 @@
         .then(products => {
           const grid = document.getElementById('adminProductGrid');
           grid.innerHTML = '';
-
           if (products.length === 0) {
             grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">Product များ မရှိသေးပါ။</p>';
             return;
           }
-
           products.forEach(p => {
             grid.innerHTML += `
               <div class="card">
