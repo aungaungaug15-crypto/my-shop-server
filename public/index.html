@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temp OTP Service - Sign Up</title>
+  <title>Temp OTP Service - Verify Account</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -14,21 +14,22 @@
     label { display: block; font-size: 13px; font-weight: 600; color: #3c4043; margin-bottom: 5px; }
     input { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 6px; font-size: 14px; outline: none; }
     input:focus { border-color: #1a73e8; }
-    .btn { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+    .btn { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; }
     .btn:hover { background: #1557b0; }
-    .main-service { display: none; }
+    .hidden { display: none; }
     .number-display { font-size: 22px; font-weight: bold; color: #202124; background: #e8f0fe; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px dashed #1a73e8; }
     .otp-display { font-size: 16px; font-weight: 500; color: #d93025; background: #fce8e6; padding: 10px; border-radius: 6px; }
+    .msg { margin-top: 10px; font-size: 13px; color: red; }
   </style>
 </head>
 <body>
 
-  <!-- Sign Up Form (အစောပိုင်း ပြသပေးမည့် အပိုင်း) -->
-  <div class="card" id="authBox">
+  <!-- Step 1: Sign Up / Login Form -->
+  <div class="card" id="step1">
     <h2>📱 Temp OTP Service</h2>
-    <p>ဝန်ဆောင်မှု အသုံးပြုရန် Gmail ဖြင့် Sign Up လုပ်ပါ</p>
+    <p>Sign Up ရန် Gmail နှင့် Password ဖြည့်ပါ</p>
     
-    <form onsubmit="handleAuth(event)">
+    <form onsubmit="sendOTP(event)">
       <div class="form-group">
         <label>Gmail Address</label>
         <input type="email" id="email" placeholder="example@gmail.com" required>
@@ -37,14 +38,30 @@
         <label>Password</label>
         <input type="password" id="password" placeholder="Enter password" required>
       </div>
-      <button type="submit" class="btn">Sign Up / Login</button>
+      <button type="submit" class="btn">OTP တောင်းမည်</button>
     </form>
+    <div class="msg" id="msg1"></div>
   </div>
 
-  <!-- Main OTP Service (Sign Up ဝင်ပြီးမှ ပေါ်လာမည့် အပိုင်း) -->
-  <div class="card main-service" id="serviceBox">
-    <h2>📱 Temp OTP Dashboard</h2>
-    <p id="welcomeUser">Welcome!</p>
+  <!-- Step 2: Enter OTP 6-Digits -->
+  <div class="card hidden" id="step2">
+    <h2>🔑 OTP အတည်ပြုပါ</h2>
+    <p>သင့် Gmail သို့ ပို့ထားသော OTP ၆ လုံး ရိုက်ထည့်ပါ</p>
+    
+    <form onsubmit="verifyOTP(event)">
+      <div class="form-group">
+        <label>6-Digit OTP Code</label>
+        <input type="text" id="otpInput" maxlength="6" placeholder="123456" style="letter-spacing: 5px; font-size: 20px; text-align: center;" required>
+      </div>
+      <button type="submit" class="btn">Verify & Login</button>
+    </form>
+    <div class="msg" id="msg2"></div>
+  </div>
+
+  <!-- Step 3: Main Dashboard -->
+  <div class="card hidden" id="step3">
+    <h2>📱 Dashboard</h2>
+    <p id="userEmail"></p>
     
     <button class="btn" onclick="getTempNumber()">Get Phone Number</button>
 
@@ -53,23 +70,58 @@
   </div>
 
   <script>
-    function handleAuth(e) {
+    let userGmail = '';
+
+    async function sendOTP(e) {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      
-      // Sign Up အောင်မြင်ပါက Main Page သို့ ကူးပြောင်းပေးခြင်း
-      document.getElementById('authBox').style.display = 'none';
-      document.getElementById('serviceBox').style.display = 'block';
-      document.getElementById('welcomeUser').innerText = `Logged in as: ${email}`;
+      userGmail = document.getElementById('email').value;
+      document.getElementById('msg1').innerText = "Sending OTP...";
+
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userGmail })
+      });
+      const data = await res.json();
+
+      if(data.success) {
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        
+        // Demo Mode တွင် တိုက်ရိုက် OTP ကုဒ် ပြပေးမည်
+        if(data.demoOtp) {
+          alert("Demo Mode OTP Code: " + data.demoOtp);
+        }
+      } else {
+        document.getElementById('msg1').innerText = data.message;
+      }
+    }
+
+    async function verifyOTP(e) {
+      e.preventDefault();
+      const otp = document.getElementById('otpInput').value;
+      document.getElementById('msg2').innerText = "Verifying...";
+
+      const res = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userGmail, otp: otp })
+      });
+      const data = await res.json();
+
+      if(data.success) {
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step3').classList.remove('hidden');
+        document.getElementById('userEmail').innerText = "Logged in: " + userGmail;
+      } else {
+        document.getElementById('msg2').innerText = data.message;
+      }
     }
 
     async function getTempNumber() {
       document.getElementById('phoneBox').innerText = "Generating...";
-      document.getElementById('otpBox').innerText = "Waiting for OTP...";
-      
       const res = await fetch('/api/get-number');
       const data = await res.json();
-      
       if(data.success) {
         document.getElementById('phoneBox').innerText = data.phone;
       }
