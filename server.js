@@ -112,7 +112,6 @@ app.post('/api/verify-otp', (req, res) => {
   return res.status(400).json({ success: false, message: 'OTP ကုဒ် မှားယွင်းနေပါသည်။' });
 });
 
-// Admin တင်ထားသော နံပါတ်များကို User ဘက်သို့ ပို့ပေးခြင်း
 app.get('/api/get-number', (req, res) => {
   const country = req.query.country || 'MM';
   const numbers = getStoredNumbers();
