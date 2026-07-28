@@ -10,10 +10,10 @@ const DATA_FILE = path.join('/tmp', 'products.json');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-// Domain/Subdomain အလိုက် ပြသပေးမည့် စာမျက်နှာ ခွဲခြားခြင်း
+// aung- လို့စတဲ့ Domain ဆိုရင် Admin Page ကိုပြပေးရန်
 app.get('/', (req, res) => {
   const host = req.headers.host || '';
-  if (host.startsWith('admin-')) {
+  if (host.startsWith('aung-') || host.startsWith('admin-')) {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
   } else {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
