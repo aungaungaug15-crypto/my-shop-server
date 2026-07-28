@@ -1,19 +1,45 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Online Shop</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Temp Phone Number for OTP</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 450px; width: 100%; }
+    h2 { color: #1a73e8; margin-bottom: 8px; }
+    p { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
+    .btn { background: #1a73e8; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    .btn:hover { background: #1557b0; }
+    .number-display { font-size: 24px; font-weight: bold; color: #202124; background: #e8f0fe; padding: 15px; border-radius: 8px; margin: 20px 0; letter-spacing: 1px; border: 1px dashed #1a73e8; }
+    .otp-display { font-size: 18px; font-weight: 500; color: #d93025; background: #fce8e6; padding: 12px; border-radius: 6px; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>🛒 My Shop</h1>
-  </header>
-  <main>
-    <h2>ဝယ်ယူရရှိနိုင်သော ပစ္စည်းများ</h2>
-    <div id="productGrid" class="product-grid"></div>
-  </main>
-  <script src="script.js"></script>
+
+  <div class="card">
+    <h2>📱 Temp OTP Number</h2>
+    <p>OTP လက်ခံရန် ယာယီ ဖုန်းနံပါတ် ရယူပါ</p>
+    
+    <button class="btn" onclick="getTempNumber()">Get New Number</button>
+
+    <div class="number-display" id="phoneBox">+959XXXXXXXX</div>
+    <div class="otp-display" id="otpBox">Waiting for OTP...</div>
+  </div>
+
+  <script>
+    async function getTempNumber() {
+      document.getElementById('phoneBox').innerText = "Generating...";
+      document.getElementById('otpBox').innerText = "Waiting for OTP...";
+      
+      const res = await fetch('/api/get-number');
+      const data = await res.json();
+      
+      if(data.success) {
+        document.getElementById('phoneBox').innerText = data.phone;
+      }
+    }
+  </script>
+
 </body>
 </html>
